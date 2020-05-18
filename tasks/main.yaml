@@ -1,0 +1,16 @@
+---
+- name: Mark host as bootstrapped
+  copy:
+    content: "true"
+    dest: "{% if not ansible_local.bootstrapped | default(false) %}{{ root_target }}{% endif %}/etc/ansible/facts.d/bootstrapped.fact"
+
+- name: Ending all pending tasks 
+  meta: flush_handlers
+
+- name: Rebooting system
+  reboot:
+    pre_reboot_delay: 5
+    post_reboot_delay: 10
+    reboot_timeout: 60
+  ignore_errors: yes
+  when: not ansible_local.bootstrapped | default(false)
